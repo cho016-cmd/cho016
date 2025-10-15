@@ -70,7 +70,11 @@ def create_sidebar():
         # 파일 선택 섹션
         st.subheader("📁 파일 선택")
         
-        # 카테고리별로 그룹화
+        # 파일 옵션과 라벨 생성
+        file_options = list(HTML_FILES.keys())
+        file_labels = [f"{HTML_FILES[file]['icon']} {HTML_FILES[file]['title']}" for file in file_options]
+        
+        # 카테고리별로 그룹화해서 표시
         categories = {}
         for file_name, info in HTML_FILES.items():
             category = info['category']
@@ -78,25 +82,28 @@ def create_sidebar():
                 categories[category] = []
             categories[category].append((file_name, info))
         
-        # 라디오 버튼으로 파일 선택
-        selected_file = None
+        # 카테고리별 표시
         for category, files in categories.items():
             st.markdown(f"**{category}**")
             for file_name, info in files:
-                if st.radio(
-                    f"{info['icon']} {info['title']}",
-                    options=[file_name],
-                    key=f"radio_{file_name}",
-                    label_visibility="collapsed"
-                ):
-                    selected_file = file_name
-            st.markdown("---")
+                st.markdown(f"• {info['icon']} {info['title']}")
+            st.markdown("")
+        
+        # 파일 선택 드롭다운
+        selected_index = st.selectbox(
+            "파일을 선택하세요:",
+            range(len(file_options)),
+            format_func=lambda x: file_labels[x],
+            key="file_selector"
+        )
+        
+        selected_file = file_options[selected_index]
         
         # 현재 시간 표시
         st.markdown("---")
         st.markdown(f"🕒 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
-        return selected_file or list(HTML_FILES.keys())[0]
+        return selected_file
 
 def display_file_info(selected_file):
     """선택된 파일 정보 표시 - 애니메이션 적용"""
@@ -423,7 +430,7 @@ def main():
     # 로딩 인디케이터와 함께 HTML 로드
     with st.spinner(f"{HTML_FILES[selected_file]['title']}을(를) 불러오는 중..."):
         html_code = load_html(selected_file)
-    
+
     if html_code:
         # HTML 렌더링 섹션
         st.subheader("🖥️ 미리보기")
