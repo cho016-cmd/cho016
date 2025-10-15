@@ -160,6 +160,10 @@ def display_file_info(selected_file):
         """, unsafe_allow_html=True)
 
 def main():
+    # 세션 상태 초기화
+    if 'fullscreen_mode' not in st.session_state:
+        st.session_state.fullscreen_mode = False
+    
     # 사이드바에서 파일 선택
     selected_file = create_sidebar()
     
@@ -447,7 +451,7 @@ def main():
         </div>
         """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([2, 2, 1])
+        col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
         
         with col1:
             st.markdown("""
@@ -455,7 +459,7 @@ def main():
                 <span style="color: #667eea; font-weight: bold;">📏 화면 높이</span>
             </div>
             """, unsafe_allow_html=True)
-            height = st.slider("", min_value=400, max_value=1200, value=800, step=100, label_visibility="collapsed")
+            height = st.slider("", min_value=600, max_value=1600, value=1000, step=100, label_visibility="collapsed")
         
         with col2:
             st.markdown("""
@@ -479,9 +483,69 @@ def main():
             if st.button("새로고침", key="refresh_btn"):
                 st.rerun()
         
+        with col4:
+            st.markdown("""
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <span style="color: #00f2fe; font-weight: bold;">🖥️ 전체화면</span>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("전체화면", key="fullscreen_btn"):
+                st.session_state.fullscreen_mode = True
+                st.rerun()
+        
         st.markdown("---")
         
-        # HTML 렌더링
+        # 전체화면 모드 처리
+        if st.session_state.fullscreen_mode:
+            st.markdown(f"""
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+                        background: white; z-index: 9999; padding: 20px; box-sizing: border-box;
+                        overflow: hidden;">
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; 
+                                margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px;">
+                        <h2 style="margin: 0; color: #667eea;">
+                            🖥️ 전체화면 모드 - {HTML_FILES[selected_file]['title']}
+                        </h2>
+                        <button onclick="exitFullscreen()" 
+                                style="background: #dc3545; color: white; border: none; 
+                                       padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                            ❌ 전체화면 종료
+                        </button>
+                    </div>
+                    <div style="flex: 1; border: 2px solid #667eea; border-radius: 10px; overflow: hidden;">
+                        <div style="width: 100%; height: 100%; overflow: auto;">
+                            {html_code}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+            function exitFullscreen() {{
+                // 전체화면 종료를 위해 페이지 새로고침
+                window.location.reload();
+            }}
+            </script>
+            """, unsafe_allow_html=True)
+            
+            # 전체화면 종료 버튼 추가
+            col1, col2, col3 = st.columns([1, 1, 1])
+            with col2:
+                if st.button("❌ 전체화면 종료", key="exit_fullscreen", type="primary"):
+                    st.session_state.fullscreen_mode = False
+                    st.rerun()
+            
+            # 전체화면 모드에서는 다른 컨텐츠를 숨김
+            st.stop()
+        
+        # 일반 모드 HTML 렌더링 - 더 큰 화면으로 표시
+        st.markdown("""
+        <div style="border: 3px solid #667eea; border-radius: 15px; 
+                    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+                    overflow: hidden; margin: 20px 0;">
+        """, unsafe_allow_html=True)
+        
         try:
             components.html(
                 html_code, 
@@ -496,6 +560,8 @@ def main():
             st.warning("📄 HTML 내용 미리보기:")
             with st.expander("HTML 소스 코드", expanded=False):
                 st.code(html_code[:1000] + "..." if len(html_code) > 1000 else html_code)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.error("❌ 파일을 불러올 수 없습니다.")
         st.info("💡 파일이 존재하는지 확인해주세요.")
