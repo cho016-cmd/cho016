@@ -42,10 +42,10 @@ HTML_FILES = {
         'icon': '🚌'
     },
     'index5.html': {
-        'title': '데이터 시각화 대시보드',
-        'description': 'Pandas와 Plotly를 이용한 인터랙티브 데이터 시각화 대시보드 데모',
-        'category': '대시보드',
-        'icon': '📊'
+        'title': '상황 기반 최적 정글 경로 분석기',
+        'description': '상대 정글러 상성을 고려해 최적의 초반 정글 동선을 계산하고 인터랙티브하게 시각화합니다.',
+        'category': '게임 도구',
+        'icon': '🗺️'
     }
 }
 
