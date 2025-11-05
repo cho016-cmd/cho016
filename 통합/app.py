@@ -19,7 +19,8 @@ HTML_FILES = {
     'index2.html': {},
     'index3.html': {},
     'index4.html': {},
-    'index5.html': {}
+    'index5.html': {},
+    'index6.html': {}  # index6.html 추가
 }
 
 def load_html(file_name):
